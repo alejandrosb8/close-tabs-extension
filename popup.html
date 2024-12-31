@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cerrar Pestañas con IA</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 1rem;
+      font-family: sans-serif;
+      max-width: 400px;
+      min-width: 300px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    /* Estilos para las pestañas */
+    .tabs {
+      display: flex;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #ccc;
+    }
+    .tab {
+      flex: 1;
+      padding: 0.5rem;
+      text-align: center;
+      cursor: pointer;
+      background-color: #e0e0e0;
+      border: none;
+      outline: none;
+      transition: background-color 0.3s;
+    }
+    .tab.active {
+      background-color: #ffffff;
+      border-bottom: 2px solid #007BFF;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    #promptInput {
+      padding: 0.5rem;
+      margin-bottom: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    #cerrarBtn {
+      padding: 0.5rem;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 0.25rem;
+    }
+    #cerrarBtn:hover {
+      background-color: #0056b3;
+    }
+    /* Estilos para las opciones */
+    .options {
+      display: flex;
+      flex-direction: column;
+    }
+    .option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .option label {
+      margin-left: 0.5rem;
+      font-size: 0.95rem;
+    }
+    #status {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .closed-tabs-list {
+      list-style-type: none;
+      padding: 0;
+      margin-top: 0.5rem;
+    }
+    
+    .closed-tabs-list li {
+      background-color: #e8f4fd;
+      margin-bottom: 0.25rem;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .closed-tabs-list li::before {
+      content: "🔒";
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cerrar Pestañas con IA</h1>
+  <div class="tabs">
+    <button class="tab active" data-tab="main">Cerrar Pestañas</button>
+    <!-- Removed the duplicated "Cerrar Pestañas" tab button -->
+    <button class="tab" data-tab="options">Opciones</button>
+  </div>
+  <div id="main" class="tab-content active">
+    <form id="closeForm">
+      <input type="text" id="promptInput" placeholder="Ej: 'Cierra pestañas de compras'">
+      <button id="cerrarBtn" type="submit">Cerrar Pestañas</button>
+      <!-- Updated Status Section -->
+      <div id="status">
+        <div id="statusMessages"></div> <!-- Nuevo: Contenedor para mensajes de estado -->
+        <ul id="closedTabs" class="closed-tabs-list"></ul> <!-- Nuevo -->
+      </div>
+      <p id="debug" style="color: red; font-size: small;"></p> <!-- Asegurado -->
+    </form>
+  </div>
+  <div id="options" class="tab-content">
+    <form class="options"> <!-- Changed to form for consistency -->
+      <div class="option">
+        <input type="checkbox" id="closeActiveTab">
+        <label for="closeActiveTab">Cerrar también la pestaña activa</label>
+      </div>
+      <div class="option">
+        <input type="checkbox" id="sendMetaTags">
+        <label for="sendMetaTags">Enviar etiquetas meta (description y keywords) a la IA</label>
+      </div>
+      <div class="option">
+        <label for="apiKey">Clave API de Gemini:</label>
+        <input type="text" id="apiKey" placeholder="Introduce tu clave API">
+      </div>
+      <div class="option">
+        <input type="checkbox" id="enableDebug">
+        <label for="enableDebug">Habilitar mensajes de depuración</label>
+      </div>
+    </form>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
