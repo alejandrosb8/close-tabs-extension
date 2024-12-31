@@ -15,7 +15,7 @@ Cerrar Pestañas con IA es una extensión de navegador (chromium) que utiliza in
 1. **Clona el repositorio:**
 
    ```bash
-   git clone https://github.com/tu-usuario/cerrar-pestañas-con-ia.git
+   git clone https://github.com/alejandrosb8/close-tabs-extension.git
    ```
 
 2. **Abre Chrome y navega a `chrome://extensions/`.**
