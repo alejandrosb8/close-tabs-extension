@@ -1,6 +1,6 @@
 # Cerrar Pestañas con IA
 
-Cerrar Pestañas con IA es una extensión de Chrome que utiliza inteligencia artificial para ayudarte a gestionar y cerrar pestañas innecesarias de manera eficiente basada en tus indicaciones.
+Cerrar Pestañas con IA es una extensión de navegador (chromium) que utiliza inteligencia artificial para ayudarte a gestionar y cerrar pestañas innecesarias de manera eficiente basada en tus indicaciones.
 
 ## Características
 
