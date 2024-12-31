@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Cerrar Pestañas con IA</title>
   <style>
+    /* Estilos generales de la página */
     body {
       margin: 0;
       padding: 1rem;
@@ -16,7 +17,7 @@
       font-size: 1.2rem;
       margin-bottom: 0.5rem;
     }
-    /* Estilos para las pestañas */
+    /* Estilos para el sistema de pestañas */
     .tabs {
       display: flex;
       margin-bottom: 1rem;
@@ -112,35 +113,40 @@
   <h1>Cerrar Pestañas con IA</h1>
   <div class="tabs">
     <button class="tab active" data-tab="main">Cerrar Pestañas</button>
-    <!-- Removed the duplicated "Cerrar Pestañas" tab button -->
     <button class="tab" data-tab="options">Opciones</button>
   </div>
   <div id="main" class="tab-content active">
     <form id="closeForm">
+      <!-- Campo para ingresar el prompt del usuario -->
       <input type="text" id="promptInput" placeholder="Ej: 'Cierra pestañas de compras'">
       <button id="cerrarBtn" type="submit">Cerrar Pestañas</button>
-      <!-- Updated Status Section -->
+      <!-- Sección de estado y lista de pestañas cerradas -->
       <div id="status">
         <div id="statusMessages"></div> <!-- Nuevo: Contenedor para mensajes de estado -->
         <ul id="closedTabs" class="closed-tabs-list"></ul> <!-- Nuevo -->
       </div>
+      <!-- Área para mostrar mensajes de depuración si está habilitado -->
       <p id="debug" style="color: red; font-size: small;"></p> <!-- Asegurado -->
     </form>
   </div>
   <div id="options" class="tab-content">
     <form class="options"> <!-- Changed to form for consistency -->
+      <!-- Opción para cerrar también la pestaña activa -->
       <div class="option">
         <input type="checkbox" id="closeActiveTab">
         <label for="closeActiveTab">Cerrar también la pestaña activa</label>
       </div>
+      <!-- Opción para enviar etiquetas meta a la IA -->
       <div class="option">
         <input type="checkbox" id="sendMetaTags">
         <label for="sendMetaTags">Enviar etiquetas meta (description y keywords) a la IA</label>
       </div>
+      <!-- Campo para ingresar la clave API de Gemini -->
       <div class="option">
         <label for="apiKey">Clave API de Gemini:</label>
         <input type="text" id="apiKey" placeholder="Introduce tu clave API">
       </div>
+      <!-- Opción para habilitar mensajes de depuración -->
       <div class="option">
         <input type="checkbox" id="enableDebug">
         <label for="enableDebug">Habilitar mensajes de depuración</label>

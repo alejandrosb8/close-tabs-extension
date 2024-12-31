@@ -1,41 +1,45 @@
-// Manejo de pestañas
-const handleTabs = () => { // Modificado
+const handleTabs = () => { 
+  // Selecciona todas las pestañas y contenidos relacionados
   const tabs = document.querySelectorAll('.tab');
   const contents = document.querySelectorAll('.tab-content');
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
+      // Desactiva todas las pestañas y contenidos
       tabs.forEach(t => t.classList.remove('active'));
       contents.forEach(c => c.classList.remove('active'));
+      // Activa la pestaña seleccionada y su contenido correspondiente
       tab.classList.add('active');
       document.getElementById(tab.dataset.tab).classList.add('active');
-      logDebug(`Cambiado a la pestaña ${tab.dataset.tab}`); // Modificado
+      logDebug(`Cambiado a la pestaña ${tab.dataset.tab}`);
     });
   });
 };
 
-const executeMetaScript = async (tab) => { // Modificado
-  const dbg = document.getElementById("debug"); // Nuevo
-  logDebug(`Iniciando ejecución de script en tab ID ${tab.id}`); // Nuevo
+// Ejecuta un script en una pestaña específica para obtener meta tags
+const executeMetaScript = async (tab) => {
+  const dbg = document.getElementById("debug");
+  logDebug(`Iniciando ejecución de script en tab ID ${tab.id}`);
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage({ action: "executeMetaScript", tabId: tab.id }, (response) => { // Modificado
+    chrome.runtime.sendMessage({ action: "executeMetaScript", tabId: tab.id }, (response) => {
       if (response.error) {
-        logDebug(`Error en tab ID ${tab.id}: ${response.error}`); // Modificado
+        logDebug(`Error en tab ID ${tab.id}: ${response.error}`);
         resolve(`ID: ${tab.id}, Title: ${tab.title}, URL: ${tab.url}, Description: N/A, Keywords: N/A`);
       } else if (response.meta) {
         const meta = response.meta;
-        logDebug(`Meta tags obtenidas para tab ID ${tab.id}`); // Modificado
+        logDebug(`Meta tags obtenidas para tab ID ${tab.id}`);
         resolve(`ID: ${tab.id}, Title: ${tab.title}, URL: ${tab.url}, Description: ${meta.description}, Keywords: ${meta.keywords}`);
       } else {
-        logDebug(`No se obtuvieron meta tags para tab ID ${tab.id}`); // Modificado
+        logDebug(`No se obtuvieron meta tags para tab ID ${tab.id}`);
         resolve(`ID: ${tab.id}, Title: ${tab.title}, URL: ${tab.url}, Description: N/A, Keywords: N/A`);
       }
-      logDebug(`Finalizó ejecución de script en tab ID ${tab.id}`); // Nuevo
+      logDebug(`Finalizó ejecución de script en tab ID ${tab.id}`);
     });
   });
 };
 
-const queryTabs = () => { // Nuevo
+// Consulta todas las pestañas abiertas en el navegador
+const queryTabs = () => {
   return new Promise((resolve, reject) => {
     chrome.tabs.query({}, (tabs) => {
       if (chrome.runtime.lastError) {
@@ -47,7 +51,8 @@ const queryTabs = () => { // Nuevo
   });
 };
 
-const getStorageData = (keys) => { // Nuevo
+// Obtiene datos almacenados en el almacenamiento sincronizado de Chrome
+const getStorageData = (keys) => {
   return new Promise((resolve, reject) => {
     chrome.storage.sync.get(keys, (data) => {
       if (chrome.runtime.lastError) {
@@ -60,93 +65,93 @@ const getStorageData = (keys) => { // Nuevo
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Obtiene referencias a elementos del DOM
   const status = document.getElementById("status");
-  const statusMessages = document.getElementById("statusMessages"); // Nuevo
+  const statusMessages = document.getElementById("statusMessages");
   const form = document.getElementById("closeForm");
-  const dbg = document.getElementById("debug"); // Asegurado
+  const dbg = document.getElementById("debug");
   const closeActiveTabCheckbox = document.getElementById("closeActiveTab");
   const sendMetaTagsCheckbox = document.getElementById("sendMetaTags");
-  const apiKeyInput = document.getElementById("apiKey"); // Nuevo
-  const enableDebugCheckbox = document.getElementById("enableDebug"); // Nuevo
-  const closedTabsList = document.getElementById("closedTabs"); // Nuevo
+  const apiKeyInput = document.getElementById("apiKey");
+  const enableDebugCheckbox = document.getElementById("enableDebug");
+  const closedTabsList = document.getElementById("closedTabs");
 
-  // Función para registrar mensajes de depuración
-  const logDebug = (message) => { // Nuevo
-    if (enableDebugCheckbox.checked) { // Nuevo
+  // Función para registrar mensajes de depuración si está habilitado
+  const logDebug = (message) => {
+    if (enableDebugCheckbox.checked) {
       dbg.textContent += ` | ${message}`;
     }
   };
 
   handleTabs(); // Inicializa el manejo de pestañas
 
-  // Cargar opciones almacenadas
-  chrome.storage.sync.get(['closeActiveTab', 'sendMetaTags', 'geminiApiKey', 'enableDebug'], (data) => { // Modificado
+  // Cargar opciones almacenadas en Chrome Storage
+  chrome.storage.sync.get(['closeActiveTab', 'sendMetaTags', 'geminiApiKey', 'enableDebug'], (data) => {
     closeActiveTabCheckbox.checked = data.closeActiveTab || false;
     sendMetaTagsCheckbox.checked = data.sendMetaTags || false;
-    apiKeyInput.value = data.geminiApiKey || ''; // Nuevo
-    enableDebugCheckbox.checked = data.enableDebug || false; // Nuevo
-    logDebug("Opciones cargadas."); // Modificado
-    logDebug(`closeActiveTab: ${closeActiveTabCheckbox.checked}, sendMetaTags: ${sendMetaTagsCheckbox.checked}, enableDebug: ${enableDebugCheckbox.checked}`); // Modificado
+    apiKeyInput.value = data.geminiApiKey || '';
+    enableDebugCheckbox.checked = data.enableDebug || false;
+    logDebug("Opciones cargadas.");
+    logDebug(`closeActiveTab: ${closeActiveTabCheckbox.checked}, sendMetaTags: ${sendMetaTagsCheckbox.checked}, enableDebug: ${enableDebugCheckbox.checked}`);
   });
 
-  // Guardar opciones al cambiarlas
+  // Guardar opciones al cambiar el estado de los checkboxes
   closeActiveTabCheckbox.addEventListener('change', () => {
     chrome.storage.sync.set({ closeActiveTab: closeActiveTabCheckbox.checked });
-    logDebug("Opción 'Cerrar también la pestaña activa' actualizada."); // Modificado
+    logDebug("Opción 'Cerrar también la pestaña activa' actualizada.");
   });
 
   sendMetaTagsCheckbox.addEventListener('change', () => {
     chrome.storage.sync.set({ sendMetaTags: sendMetaTagsCheckbox.checked });
-    logDebug("Opción 'Enviar etiquetas meta' actualizada."); // Modificado
+    logDebug("Opción 'Enviar etiquetas meta' actualizada.");
   });
 
-  enableDebugCheckbox.addEventListener('change', () => { // Nuevo
+  enableDebugCheckbox.addEventListener('change', () => {
     chrome.storage.sync.set({ enableDebug: enableDebugCheckbox.checked });
     if (!enableDebugCheckbox.checked) {
-      dbg.textContent = ""; // Limpiar mensajes de depuración
+      dbg.textContent = ""; // Limpia mensajes de depuración si está deshabilitado
     } else {
-      logDebug("Depuración habilitada."); // Opcional
+      logDebug("Depuración habilitada.");
     }
-    logDebug("Opción 'Habilitar mensajes de depuración' actualizada."); // Modificado
+    logDebug("Opción 'Habilitar mensajes de depuración' actualizada.");
   });
 
-  apiKeyInput.addEventListener('input', () => { // Nuevo
+  apiKeyInput.addEventListener('input', () => {
     chrome.storage.sync.set({ geminiApiKey: apiKeyInput.value });
-    logDebug("Clave API de Gemini actualizada."); // Añadido
+    logDebug("Clave API de Gemini actualizada.");
   });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    statusMessages.innerHTML += "<p>Obteniendo pestañas...</p>"; // Actualizado
-    logDebug("Formulario enviado."); // Reemplazado
-    
+    statusMessages.innerHTML += "<p>Obteniendo pestañas...</p>";
+    logDebug("Formulario enviado.");
+
     try {
-      logDebug("Iniciando consulta de pestañas."); // Modificado
+      logDebug("Iniciando consulta de pestañas.");
       const tabs = await queryTabs();
-      logDebug("Pestañas obtenidas."); // Modificado
+      logDebug("Pestañas obtenidas.");
       const userText = document.getElementById("promptInput").value;
-      logDebug(`Texto del usuario: "${userText}"`); // Modificado
+      logDebug(`Texto del usuario: "${userText}"`);
 
       const sendMetaTags = sendMetaTagsCheckbox.checked;
-      logDebug(`Enviar etiquetas meta: ${sendMetaTags}`); // Modificado
+      logDebug(`Enviar etiquetas meta: ${sendMetaTags}`);
       let tabList = tabs.map(t => `ID: ${t.id}, Title: ${t.title}, URL: ${t.url}`);
       if (sendMetaTags) {
-        logDebug("Se iniciará la recopilación de meta tags."); // Modificado
-        const metaTagsPromises = tabs.map(tab => executeMetaScript(tab)); // Modificado
-
-        logDebug("Esperando a que todas las meta tags sean recopiladas."); // Modificado
+        logDebug("Se iniciará la recopilación de meta tags.");
+        const metaTagsPromises = tabs.map(tab => executeMetaScript(tab));
+        logDebug("Esperando a que todas las meta tags sean recopiladas.");
         const metaTags = await Promise.all(metaTagsPromises);
-        logDebug("Meta tags recopiladas."); // Modificado
+        logDebug("Meta tags recopiladas.");
         tabList = metaTags;
       }
 
-      logDebug("Obtención de clave API de Gemini."); // Modificado
+      logDebug("Obtención de clave API de Gemini.");
       const storageData = await getStorageData(['geminiApiKey']);
       const geminiApiKey = storageData.geminiApiKey || '';
-      logDebug(geminiApiKey ? "Clave API de Gemini obtenida." : "Clave API de Gemini no proporcionada."); // Modificado
+      logDebug(geminiApiKey ? "Clave API de Gemini obtenida." : "Clave API de Gemini no proporcionada.");
       if (!geminiApiKey) {
-        statusMessages.innerHTML += "<p>Por favor, introduce tu clave API de Gemini en las opciones.</p>"; // Actualizado
-        logDebug("Error: Clave API de Gemini no proporcionada."); // Modificado
+        statusMessages.innerHTML += "<p>Por favor, introduce tu clave API de Gemini en las opciones.</p>";
+        logDebug("Error: Clave API de Gemini no proporcionada.");
         return;
       }
 
@@ -163,14 +168,14 @@ Instructions:
 - ${closeActiveTabCheckbox.checked ? "Include the active tab if it matches the criteria." : "Do not include the active tab."}
       `.trim();
 
-      logDebug("Prompt para IA preparado."); // Modificado
-      logDebug(`Prompt enviado: "${fullPrompt}"`); // Modificado
-      statusMessages.innerHTML += "<p>Enviando solicitud a la IA...</p>"; // Actualizado
-      logDebug("Enviando solicitud a la IA."); // Modificado
+      logDebug("Prompt para IA preparado.");
+      logDebug(`Prompt enviado: "${fullPrompt}"`);
+      statusMessages.innerHTML += "<p>Enviando solicitud a la IA...</p>";
+      logDebug("Enviando solicitud a la IA.");
 
       try {
-        logDebug("Iniciando solicitud fetch a la IA."); // Modificado
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, { // Actualizado
+        logDebug("Iniciando solicitud fetch a la IA.");
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -178,17 +183,17 @@ Instructions:
           })
         });
 
-        logDebug(`API responded with status: ${response.status}`); // Modificado
+        logDebug(`API responded with status: ${response.status}`);
         if (!response.ok) {
           throw new Error(`API request failed with status ${response.status}`);
         }
 
-        logDebug("Solicitud enviada, esperando respuesta..."); // Modificado
+        logDebug("Solicitud enviada, esperando respuesta...");
         const data = await response.json();
-        logDebug("Respuesta recibida."); // Modificado
-        logDebug(`Respuesta de la IA: ${JSON.stringify(data)}`); // Modificado
+        logDebug("Respuesta recibida.");
+        logDebug(`Respuesta de la IA: ${JSON.stringify(data)}`);
         const rawContent = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-        logDebug(`Contenido bruto de la respuesta: ${rawContent}`); // Modificado
+        logDebug(`Contenido bruto de la respuesta: ${rawContent}`);
 
         const match = rawContent.match(/\{[\s\S]*\}/);
         let cleanedJson = match ? match[0] : "{}";
@@ -196,40 +201,40 @@ Instructions:
         try {
           const parsed = JSON.parse(cleanedJson);
           selectedIds = parsed?.ids || [];
-          logDebug(`IDs seleccionados: ${selectedIds}`); // Modificado
+          logDebug(`IDs seleccionados: ${selectedIds}`);
         } catch (err) {
-          statusMessages.innerHTML += "<p>La IA devolvió un JSON inválido.</p>"; // Actualizado
-          logDebug("Error al parsear JSON."); // Modificado
+          statusMessages.innerHTML += "<p>La IA devolvió un JSON inválido.</p>";
+          logDebug("Error al parsear JSON.");
           return;
         }
-        statusMessages.innerHTML += "<p>Cerrando pestañas elegidas...</p>"; // Actualizado
-        logDebug("Cerrando pestañas seleccionadas."); // Modificado
+        statusMessages.innerHTML += "<p>Cerrando pestañas elegidas...</p>";
+        logDebug("Cerrando pestañas seleccionadas.");
 
         if (selectedIds.length === 0) {
-          statusMessages.innerHTML += "<p>No se encontraron IDs a cerrar.</p>"; // Actualizado
-          logDebug("Ningún ID encontrado."); // Modificado
+          statusMessages.innerHTML += "<p>No se encontraron IDs a cerrar.</p>";
+          logDebug("Ningún ID encontrado.");
           return;
         }
         tabs.forEach((tab) => {
           if (selectedIds.includes(tab.id)) {
-            logDebug(`Intentando cerrar pestaña ID: ${tab.id}`); // Modificado
+            logDebug(`Intentando cerrar pestaña ID: ${tab.id}`);
             chrome.tabs.remove(tab.id, () => {
               const listItem = document.createElement('li');
               listItem.textContent = `Cerrada pestaña: ${tab.title}`;
-              closedTabsList.appendChild(listItem); // Añadido
+              closedTabsList.appendChild(listItem);
               
-              logDebug(`Cerrada pestaña ID: ${tab.id}`); // Modificado
+              logDebug(`Cerrada pestaña ID: ${tab.id}`);
             });
           }
         });
       } catch (error) {
-        statusMessages.innerHTML += `<p>Error: ${error.message}</p>`; // Actualizado
-        logDebug(`Error en la solicitud a la IA: ${error.message}`); // Modificado
+        statusMessages.innerHTML += `<p>Error: ${error.message}</p>`;
+        logDebug(`Error en la solicitud a la IA: ${error.message}`);
         console.error(error);
       }
     } catch (error) {
-      statusMessages.innerHTML += `<p>Error: ${error.message}</p>`; // Actualizado
-      logDebug(`Error general: ${error.message}`); // Modificado
+      statusMessages.innerHTML += `<p>Error: ${error.message}</p>`;
+      logDebug(`Error general: ${error.message}`);
       console.error(error);
     }
   });
